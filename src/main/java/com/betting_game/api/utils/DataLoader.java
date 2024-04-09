@@ -29,7 +29,11 @@ public class DataLoader implements ApplicationRunner {
 				new GameModel("BxD", "waiting"),
 				new GameModel("CxD", "waiting"));
 
-		gameRepository.saveAll(games);
+		for (GameModel game : games) {
+			if (!gameRepository.existsByName(game.getName())) {
+				gameRepository.save(game);
+			}
+		}
 	}
 
 }

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +37,12 @@ public class GameController {
 	public ResponseEntity<Object> createGame(@RequestBody @Valid GameDTO body) {
 		GameModel game = gameService.save(body);
 		return ResponseEntity.status(HttpStatus.CREATED).body(game);
+	}
+
+	@PutMapping("/end")
+	public ResponseEntity<Object> updateUser() {
+		List<GameModel> games = gameService.update();
+		return ResponseEntity.status(HttpStatus.OK).body(games);
 	}
 
 }

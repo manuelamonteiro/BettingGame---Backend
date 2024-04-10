@@ -33,14 +33,16 @@ public class GameService {
 
 	public List<GameModel> update() {
 
-		String[] options = { "draw", "A", "B", "C", "D" };
-
 		List<GameModel> games = gameRepository.findAll();
 
 		Random random = new Random();
 
 		for (GameModel game : games) {
+			String name = game.getName();
+			String[] teams = name.split("x");
+			String[] options = { "draw", teams[0], teams[1] };
 			int randomIndex = random.nextInt((options.length));
+
 			game.setResult(options[randomIndex]);
 		}
 

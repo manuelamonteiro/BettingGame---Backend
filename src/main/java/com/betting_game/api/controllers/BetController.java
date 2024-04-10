@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.betting_game.api.dtos.BetDTO;
+import com.betting_game.api.dtos.UserDTO;
 import com.betting_game.api.models.BetModel;
 import com.betting_game.api.services.BetService;
 
@@ -27,9 +28,10 @@ public class BetController {
 		this.betService = betService;
 	}
 
-	@GetMapping("/{userId}")
-	public ResponseEntity<Object> getBetsByUser(@PathVariable("userId") Long userId) {
-		List<BetModel> betsByUser = betService.findAllByUser(userId);
+	@GetMapping("user/{userId}")
+	public ResponseEntity<Object> getBetsByUser(@PathVariable("userId") Long userId,
+			@RequestBody @Valid UserDTO body) {
+		List<BetModel> betsByUser = betService.findAllByUser(userId, body);
 		return ResponseEntity.status(HttpStatus.OK).body(betsByUser);
 	}
 

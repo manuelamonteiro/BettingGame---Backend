@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.betting_game.api.dtos.BetDTO;
+import com.betting_game.api.dtos.UserDTO;
 import com.betting_game.api.exceptions.BetConflictException;
 import com.betting_game.api.exceptions.GameNotFoundException;
 import com.betting_game.api.exceptions.BetBadRequestException;
@@ -49,7 +50,9 @@ public class BetService {
 		return true;
 	}
 
-	public List<BetModel> findAllByUser(Long userId) {
+	public List<BetModel> findAllByUser(Long userId, UserDTO dto) {
+		this.verifyLogin(dto.getUsername(), dto.getPassword());
+
 		return betRepository.findAllByUserId(userId);
 	}
 

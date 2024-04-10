@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity 
+@Entity
 @Table(name = "tb_users")
 public class UserModel {
 
@@ -26,8 +26,14 @@ public class UserModel {
 		this.coins = 1000L;
 	}
 
+	public UserModel(String username, String password) {
+		this.username = username;
+		this.password = password;
+		this.coins = 1000L;
+	}
+
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE) 
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
 	private Long id;
 
 	@Column(length = 150, nullable = false)

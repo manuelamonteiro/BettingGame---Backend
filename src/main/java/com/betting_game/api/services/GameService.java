@@ -33,7 +33,7 @@ public class GameService {
 
 	public List<GameModel> update() {
 
-		String[] options = { "draw", "A won", "B won", "C won", "D won" };
+		String[] options = { "draw", "A", "B", "C", "D" };
 
 		List<GameModel> games = gameRepository.findAll();
 

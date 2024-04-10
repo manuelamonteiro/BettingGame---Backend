@@ -13,13 +13,18 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
 	}
 
+	@ExceptionHandler({ UserNotFoundException.class })
+	public ResponseEntity<String> handleUserNotFound(UserNotFoundException exception) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+	}
+
 	@ExceptionHandler({ UserUnauthorizedException.class })
 	public ResponseEntity<String> handleUserUnauthorized(UserUnauthorizedException exception) {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
 	}
 
 	@ExceptionHandler({ UserForbiddenException.class })
-	public ResponseEntity<String> handleUserNotFound(UserForbiddenException exception) {
+	public ResponseEntity<String> handleUserForbidden(UserForbiddenException exception) {
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
 	}
 

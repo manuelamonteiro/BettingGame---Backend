@@ -1,4 +1,4 @@
-package com.betting_game.api.utils;
+package com.betting_game.api.config;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

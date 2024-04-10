@@ -1,7 +1,11 @@
 package com.betting_game.api.controllers;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,6 +25,18 @@ public class UserController {
 
 	public UserController(UserService userService) {
 		this.userService = userService;
+	}
+
+	@GetMapping
+	public ResponseEntity<Object> getUsers() {
+		List<UserModel> users = userService.findAll();
+		return ResponseEntity.status(HttpStatus.OK).body(users);
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<Object> getUserById(@PathVariable("id") Long id) {
+		UserModel user = userService.findById(id);
+		return ResponseEntity.status(HttpStatus.OK).body(user);
 	}
 
 	@PostMapping("/register")

@@ -1,10 +1,13 @@
-// package com.betting_game.api.repositories;
+package com.betting_game.api.repositories;
 
-// import org.springframework.data.jpa.repository.JpaRepository;
-// import org.springframework.stereotype.Repository;
+import java.util.List;
 
-// import com.betting_game.api.models.BetModel;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-// @Repository
-// public interface BetRepository extends JpaRepository<BetModel, Long> {
-// }
+import com.betting_game.api.models.BetModel;
+
+@Repository
+public interface BetRepository extends JpaRepository<BetModel, Long> {
+	List<BetModel> findAllByUserId(Long userId);
+}

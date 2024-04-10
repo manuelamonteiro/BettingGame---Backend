@@ -23,11 +23,6 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
 	}
 
-	@ExceptionHandler({ UserForbiddenException.class })
-	public ResponseEntity<String> handleUserForbidden(UserForbiddenException exception) {
-		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
-	}
-
 	@ExceptionHandler({ GameNotFoundException.class })
 	public ResponseEntity<String> handleGameNotFound(GameNotFoundException exception) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
@@ -36,6 +31,16 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler({ GameConflictException.class })
 	public ResponseEntity<String> handleGameConflict(GameConflictException exception) {
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+	}
+
+	@ExceptionHandler({ BetConflictException.class })
+	public ResponseEntity<String> handleBetConflict(BetConflictException exception) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+	}
+
+	@ExceptionHandler({ BetBadRequestException.class })
+	public ResponseEntity<String> handleInsufficientCoins(BetBadRequestException exception) {
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
 	}
 
 }

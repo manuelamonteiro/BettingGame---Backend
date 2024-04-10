@@ -8,4 +8,5 @@ import com.betting_game.api.models.UserModel;
 @Repository
 public interface UserRepository extends JpaRepository<UserModel, Long> {
 	boolean existsByUsername(String username);
+	UserModel findByUsername(String username);
 }

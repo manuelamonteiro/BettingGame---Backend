@@ -1,5 +1,6 @@
 package com.betting_game.api.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -7,6 +8,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.betting_game.api.dtos.BetDTO;
+import com.betting_game.api.dtos.BetTransformedResponseDTO;
+import com.betting_game.api.dtos.BetsByUserTransformedResponseDTO;
 import com.betting_game.api.dtos.UserDTO;
 import com.betting_game.api.exceptions.BetConflictException;
 import com.betting_game.api.exceptions.GameNotFoundException;
@@ -50,10 +53,34 @@ public class BetService {
 		return true;
 	}
 
-	public List<BetModel> findAllByUser(Long userId, UserDTO dto) {
+	public BetsByUserTransformedResponseDTO transform(List<BetModel> body) {
+		BetsByUserTransformedResponseDTO response = new BetsByUserTransformedResponseDTO();
+		response.setUsername(body.get(0).getUser().getUsername());
+		response.setCoins(body.get(0).getUser().getCoins());
+
+		List<BetTransformedResponseDTO> bets = new ArrayList<>();
+		for (BetModel betBody : body) {
+			BetTransformedResponseDTO bet = new BetTransformedResponseDTO();
+			bet.setId(betBody.getId());
+			bet.setBetAmount(betBody.getBetAmount());
+			bet.setBet(betBody.getBet());
+			bet.setGameId(betBody.getGame().getId());
+
+			bets.add(bet);
+		}
+
+		response.setBets(bets);
+
+		return response;
+	}
+
+	public BetsByUserTransformedResponseDTO findAllByUser(Long userId, UserDTO dto) {
 		this.verifyLogin(dto.getUsername(), dto.getPassword());
 
-		return betRepository.findAllByUserId(userId);
+		List<BetModel> bets = betRepository.findAllByUserId(userId);
+		BetsByUserTransformedResponseDTO response = this.transform(bets);
+
+		return response;
 	}
 
 	public BetModel save(BetDTO dto) {

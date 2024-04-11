@@ -49,6 +49,12 @@ public class GameService {
 		List<GameModel> updatedGames = gameRepository.saveAll(games);
 
 		//após realizar a atualização dos jogos deve atualizar a quantidade de moedas de cada jogador a partir do resultado e aposta
+		//primeiro deve pegar essa lista de resultados atualizados
+		//deve pegar todas as apostas dos usuários
+		//deve percorrer a lista de apostas dos usuários
+		//deve verificar de cada usuário os jogos participantes comparando o resultado final com a aposta (talvez deva percorrer novamente?)
+		//se o resultado for igual deve dobrar o valor apostado e adc ao saldo da conta do jogador
+		//se o resultado não for igual nada acontece
 
 		return updatedGames;
 	}

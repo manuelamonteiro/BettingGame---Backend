@@ -1,21 +1,54 @@
 package com.betting_game.api.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
+import com.betting_game.api.dtos.BetTransformedResponseDTO;
+import com.betting_game.api.dtos.BetsByUserTransformedResponseDTO;
 import com.betting_game.api.dtos.GameDTO;
 import com.betting_game.api.exceptions.GameConflictException;
+import com.betting_game.api.models.BetModel;
 import com.betting_game.api.models.GameModel;
+import com.betting_game.api.models.UserModel;
+import com.betting_game.api.repositories.BetRepository;
 import com.betting_game.api.repositories.GameRepository;
+import com.betting_game.api.repositories.UserRepository;
 
 @Service
 public class GameService {
-	final GameRepository gameRepository;
 
-	GameService(GameRepository gameRepository) {
+	final UserRepository userRepository;
+	final GameRepository gameRepository;
+	final BetRepository betRepository;
+
+	GameService(GameRepository gameRepository, UserRepository userRepository, BetRepository betRepository) {
 		this.gameRepository = gameRepository;
+		this.userRepository = userRepository;
+		this.betRepository = betRepository;
+	}
+
+	public BetsByUserTransformedResponseDTO transform(List<BetModel> body) {
+		BetsByUserTransformedResponseDTO response = new BetsByUserTransformedResponseDTO();
+		response.setUsername(body.get(0).getUser().getUsername());
+		response.setCoins(body.get(0).getUser().getCoins());
+
+		List<BetTransformedResponseDTO> bets = new ArrayList<>();
+		for (BetModel betBody : body) {
+			BetTransformedResponseDTO bet = new BetTransformedResponseDTO();
+			bet.setId(betBody.getId());
+			bet.setBetAmount(betBody.getBetAmount());
+			bet.setBet(betBody.getBet());
+			bet.setGameId(betBody.getGame().getId());
+
+			bets.add(bet);
+		}
+
+		response.setBets(bets);
+
+		return response;
 	}
 
 	public List<GameModel> findAll() {
@@ -48,14 +81,32 @@ public class GameService {
 
 		List<GameModel> updatedGames = gameRepository.saveAll(games);
 
-		//após realizar a atualização dos jogos deve atualizar a quantidade de moedas de cada jogador a partir do resultado e aposta
-		//primeiro deve pegar essa lista de resultados atualizados
-		//deve pegar todas as apostas dos usuários
-		//deve percorrer a lista de apostas dos usuários
-		//deve verificar de cada usuário os jogos participantes comparando o resultado final com a aposta (talvez deva percorrer novamente?)
-		//se o resultado for igual deve dobrar o valor apostado e adc ao saldo da conta do jogador
-		//se o resultado não for igual nada acontece
+		this.updateUsersCoins();
 
 		return updatedGames;
+	}
+
+	public void updateUsersCoins() {
+
+		List<UserModel> users = userRepository.findAll();
+		List<GameModel> games = gameRepository.findAll();
+
+		for (UserModel user : users) {
+			List<BetModel> betsByUser = betRepository.findAllByUserId(user.getId());
+			List<BetTransformedResponseDTO> betsByUserTransformed = this.transform(betsByUser).getBets();
+
+			for (BetTransformedResponseDTO betByUserTransformed : betsByUserTransformed) {
+				for (GameModel game : games) {
+					if (betByUserTransformed.getGameId() == game.getId() &&
+							betByUserTransformed.getBet().equals(game.getResult())) {
+						user.setCoins(user.getCoins()
+								+ (betByUserTransformed.getBetAmount() * 2));
+						userRepository.save(user);
+					}
+				}
+			}
+
+		}
+
 	}
 }

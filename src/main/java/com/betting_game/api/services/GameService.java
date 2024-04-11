@@ -30,20 +30,23 @@ public class GameService {
 		this.betRepository = betRepository;
 	}
 
-	public BetsByUserTransformedResponseDTO transform(List<BetModel> body) {
+	public BetsByUserTransformedResponseDTO transform(List<BetModel> body, UserModel user) {
 		BetsByUserTransformedResponseDTO response = new BetsByUserTransformedResponseDTO();
-		response.setUsername(body.get(0).getUser().getUsername());
-		response.setCoins(body.get(0).getUser().getCoins());
-
 		List<BetTransformedResponseDTO> bets = new ArrayList<>();
-		for (BetModel betBody : body) {
-			BetTransformedResponseDTO bet = new BetTransformedResponseDTO();
-			bet.setId(betBody.getId());
-			bet.setBetAmount(betBody.getBetAmount());
-			bet.setBet(betBody.getBet());
-			bet.setGameId(betBody.getGame().getId());
 
-			bets.add(bet);
+		response.setUsername(user.getUsername());
+		response.setCoins(user.getCoins());
+
+		if (!body.isEmpty()) {
+			for (BetModel betBody : body) {
+				BetTransformedResponseDTO bet = new BetTransformedResponseDTO();
+				bet.setId(betBody.getId());
+				bet.setBetAmount(betBody.getBetAmount());
+				bet.setBet(betBody.getBet());
+				bet.setGameId(betBody.getGame().getId());
+
+				bets.add(bet);
+			}
 		}
 
 		response.setBets(bets);
@@ -72,8 +75,8 @@ public class GameService {
 
 		for (GameModel game : games) {
 			String name = game.getName();
-			String[] teams = name.split("x");
-			String[] options = { "draw", teams[0], teams[1] };
+			String[] teams = name.split("");
+			String[] options = { "draw", teams[0], teams[2] };
 			int randomIndex = random.nextInt((options.length));
 
 			game.setResult(options[randomIndex]);
@@ -93,20 +96,25 @@ public class GameService {
 
 		for (UserModel user : users) {
 			List<BetModel> betsByUser = betRepository.findAllByUserId(user.getId());
-			List<BetTransformedResponseDTO> betsByUserTransformed = this.transform(betsByUser).getBets();
+			List<BetTransformedResponseDTO> betsByUserTransformed = this.transform(betsByUser, user)
+					.getBets();
 
-			for (BetTransformedResponseDTO betByUserTransformed : betsByUserTransformed) {
-				for (GameModel game : games) {
-					if (betByUserTransformed.getGameId() == game.getId() &&
-							betByUserTransformed.getBet().equals(game.getResult())) {
-						user.setCoins(user.getCoins()
-								+ (betByUserTransformed.getBetAmount() * 2));
-						userRepository.save(user);
+			if (!betsByUserTransformed.isEmpty()) {
+				for (BetTransformedResponseDTO betByUserTransformed : betsByUserTransformed) {
+					for (GameModel game : games) {
+						if (betByUserTransformed.getGameId() == game.getId() &&
+								betByUserTransformed.getBet()
+										.equals(game.getResult())) {
+							user.setCoins(user.getCoins()
+									+ (betByUserTransformed.getBetAmount() * 2));
+							userRepository.save(user);
+						}
 					}
 				}
+			} else {
+				continue;
 			}
-
 		}
-
 	}
+
 }

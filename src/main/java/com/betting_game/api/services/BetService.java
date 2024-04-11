@@ -39,7 +39,7 @@ public class BetService {
 		this.userRepository = userRepository;
 	}
 
-	public boolean verifyLogin(String username, String password) {
+	public UserModel verifyLogin(String username, String password) {
 		UserModel userByUsername = userRepository.findByUsername(username);
 
 		if (userByUsername == null) {
@@ -50,23 +50,26 @@ public class BetService {
 			throw new UserUnauthorizedException("User unauthorized!");
 		}
 
-		return true;
+		return userByUsername;
 	}
 
-	public BetsByUserTransformedResponseDTO transform(List<BetModel> body) {
+	public BetsByUserTransformedResponseDTO transform(List<BetModel> body, UserModel user) {
 		BetsByUserTransformedResponseDTO response = new BetsByUserTransformedResponseDTO();
-		response.setUsername(body.get(0).getUser().getUsername());
-		response.setCoins(body.get(0).getUser().getCoins());
-
 		List<BetTransformedResponseDTO> bets = new ArrayList<>();
-		for (BetModel betBody : body) {
-			BetTransformedResponseDTO bet = new BetTransformedResponseDTO();
-			bet.setId(betBody.getId());
-			bet.setBetAmount(betBody.getBetAmount());
-			bet.setBet(betBody.getBet());
-			bet.setGameId(betBody.getGame().getId());
 
-			bets.add(bet);
+		response.setUsername(user.getUsername());
+		response.setCoins(user.getCoins());
+
+		if (!body.isEmpty()) {
+			for (BetModel betBody : body) {
+				BetTransformedResponseDTO bet = new BetTransformedResponseDTO();
+				bet.setId(betBody.getId());
+				bet.setBetAmount(betBody.getBetAmount());
+				bet.setBet(betBody.getBet());
+				bet.setGameId(betBody.getGame().getId());
+
+				bets.add(bet);
+			}
 		}
 
 		response.setBets(bets);
@@ -75,10 +78,10 @@ public class BetService {
 	}
 
 	public BetsByUserTransformedResponseDTO findAllByUser(Long userId, UserDTO dto) {
-		this.verifyLogin(dto.getUsername(), dto.getPassword());
+		UserModel user = this.verifyLogin(dto.getUsername(), dto.getPassword());
 
 		List<BetModel> bets = betRepository.findAllByUserId(userId);
-		BetsByUserTransformedResponseDTO response = this.transform(bets);
+		BetsByUserTransformedResponseDTO response = this.transform(bets, user);
 
 		return response;
 	}

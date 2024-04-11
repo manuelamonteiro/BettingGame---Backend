@@ -42,7 +42,7 @@ public class GameController {
 	}
 
 	@PutMapping("/end")
-	public ResponseEntity<Object> updateGame() {
+	public ResponseEntity<Object> endGames() {
 		List<GameModel> games = gameService.update();
 		return ResponseEntity.status(HttpStatus.OK).body(games);
 	}

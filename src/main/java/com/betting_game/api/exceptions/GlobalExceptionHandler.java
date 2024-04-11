@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
 	}
 
 	@ExceptionHandler({ BetBadRequestException.class })
-	public ResponseEntity<String> handleInsufficientCoins(BetBadRequestException exception) {
+	public ResponseEntity<String> handleBetBadRequest(BetBadRequestException exception) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
 	}
 

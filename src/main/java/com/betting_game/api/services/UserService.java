@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.betting_game.api.dtos.UserDTO;
 import com.betting_game.api.exceptions.UserConflictException;
 import com.betting_game.api.exceptions.UserNotFoundException;
+import com.betting_game.api.exceptions.UserUnauthorizedException;
 import com.betting_game.api.models.UserModel;
 import com.betting_game.api.repositories.UserRepository;
 
@@ -41,6 +42,20 @@ public class UserService {
 
 		UserModel user = new UserModel(dto.getUsername(), encryptedPassword);
 		return userRepository.save(user);
+	}
+
+	public UserModel login(UserDTO dto) {
+		UserModel userByUsername = userRepository.findByUsername(dto.getUsername());
+
+		if (userByUsername == null) {
+			throw new UserNotFoundException("User not found!");
+		}
+
+		if (!bCryptPasswordEncoder.matches(dto.getPassword(), userByUsername.getPassword())) {
+			throw new UserUnauthorizedException("User unauthorized!");
+		}
+
+		return userByUsername;
 	}
 
 }

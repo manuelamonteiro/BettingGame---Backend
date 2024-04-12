@@ -1,13 +1,11 @@
 package com.betting_game.api.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
 import com.betting_game.api.dtos.BetTransformedResponseDTO;
-import com.betting_game.api.dtos.BetsByUserTransformedResponseDTO;
 import com.betting_game.api.dtos.GameDTO;
 import com.betting_game.api.exceptions.GameConflictException;
 import com.betting_game.api.models.BetModel;
@@ -16,6 +14,7 @@ import com.betting_game.api.models.UserModel;
 import com.betting_game.api.repositories.BetRepository;
 import com.betting_game.api.repositories.GameRepository;
 import com.betting_game.api.repositories.UserRepository;
+import com.betting_game.api.utils.TransformResponses;
 
 @Service
 public class GameService {
@@ -23,35 +22,14 @@ public class GameService {
 	final UserRepository userRepository;
 	final GameRepository gameRepository;
 	final BetRepository betRepository;
+	final TransformResponses transformResponses;
 
-	GameService(GameRepository gameRepository, UserRepository userRepository, BetRepository betRepository) {
+	GameService(GameRepository gameRepository, UserRepository userRepository, BetRepository betRepository,
+			TransformResponses transformResponses) {
 		this.gameRepository = gameRepository;
 		this.userRepository = userRepository;
 		this.betRepository = betRepository;
-	}
-
-	public BetsByUserTransformedResponseDTO transform(List<BetModel> body, UserModel user) {
-		BetsByUserTransformedResponseDTO response = new BetsByUserTransformedResponseDTO();
-		List<BetTransformedResponseDTO> bets = new ArrayList<>();
-
-		response.setUsername(user.getUsername());
-		response.setCoins(user.getCoins());
-
-		if (!body.isEmpty()) {
-			for (BetModel betBody : body) {
-				BetTransformedResponseDTO bet = new BetTransformedResponseDTO();
-				bet.setId(betBody.getId());
-				bet.setBetAmount(betBody.getBetAmount());
-				bet.setBet(betBody.getBet());
-				bet.setGameId(betBody.getGame().getId());
-
-				bets.add(bet);
-			}
-		}
-
-		response.setBets(bets);
-
-		return response;
+		this.transformResponses = transformResponses;
 	}
 
 	public List<GameModel> findAll() {
@@ -96,7 +74,8 @@ public class GameService {
 
 		for (UserModel user : users) {
 			List<BetModel> betsByUser = betRepository.findAllByUserId(user.getId());
-			List<BetTransformedResponseDTO> betsByUserTransformed = this.transform(betsByUser, user)
+			List<BetTransformedResponseDTO> betsByUserTransformed = transformResponses
+					.transform(betsByUser, user)
 					.getBets();
 
 			if (!betsByUserTransformed.isEmpty()) {

@@ -1,6 +1,5 @@
 package com.betting_game.api.services;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,7 +7,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.betting_game.api.dtos.BetDTO;
-import com.betting_game.api.dtos.BetTransformedResponseDTO;
 import com.betting_game.api.dtos.BetsByUserTransformedResponseDTO;
 import com.betting_game.api.dtos.UserDTO;
 import com.betting_game.api.exceptions.BetConflictException;
@@ -23,6 +21,7 @@ import com.betting_game.api.models.UserModel;
 import com.betting_game.api.repositories.BetRepository;
 import com.betting_game.api.repositories.GameRepository;
 import com.betting_game.api.repositories.UserRepository;
+import com.betting_game.api.utils.TransformResponses;
 
 @Service
 public class BetService {
@@ -31,13 +30,15 @@ public class BetService {
 	final GameRepository gameRepository;
 	final BetRepository betRepository;
 	final BCryptPasswordEncoder bCryptPasswordEncoder;
+	final TransformResponses $transformResponses;
 
 	BetService(UserRepository userRepository, GameRepository gameRepository, BetRepository betRepository,
-			BCryptPasswordEncoder bCryptPasswordEncoder) {
+			BCryptPasswordEncoder bCryptPasswordEncoder, TransformResponses $transformResponses) {
 		this.bCryptPasswordEncoder = bCryptPasswordEncoder;
 		this.betRepository = betRepository;
 		this.gameRepository = gameRepository;
 		this.userRepository = userRepository;
+		this.$transformResponses = $transformResponses;
 	}
 
 	public UserModel verifyLogin(String username, String password) {
@@ -54,30 +55,6 @@ public class BetService {
 		return userByUsername;
 	}
 
-	public BetsByUserTransformedResponseDTO transform(List<BetModel> body, UserModel user) {
-		BetsByUserTransformedResponseDTO response = new BetsByUserTransformedResponseDTO();
-		List<BetTransformedResponseDTO> bets = new ArrayList<>();
-
-		response.setUsername(user.getUsername());
-		response.setCoins(user.getCoins());
-
-		if (!body.isEmpty()) {
-			for (BetModel betBody : body) {
-				BetTransformedResponseDTO bet = new BetTransformedResponseDTO();
-				bet.setId(betBody.getId());
-				bet.setBetAmount(betBody.getBetAmount());
-				bet.setBet(betBody.getBet());
-				bet.setGameId(betBody.getGame().getId());
-
-				bets.add(bet);
-			}
-		}
-
-		response.setBets(bets);
-
-		return response;
-	}
-
 	public BetsByUserTransformedResponseDTO findAllByUser(Long userId, UserDTO dto) {
 		UserModel user = this.verifyLogin(dto.getUsername(), dto.getPassword());
 
@@ -86,7 +63,7 @@ public class BetService {
 		}
 
 		List<BetModel> bets = betRepository.findAllByUserId(userId);
-		BetsByUserTransformedResponseDTO response = this.transform(bets, user);
+		BetsByUserTransformedResponseDTO response = $transformResponses.transform(bets, user);
 
 		return response;
 	}

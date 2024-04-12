@@ -81,7 +81,7 @@ public class BetService {
 	public BetsByUserTransformedResponseDTO findAllByUser(Long userId, UserDTO dto) {
 		UserModel user = this.verifyLogin(dto.getUsername(), dto.getPassword());
 
-		if(user.getId() != userId){
+		if (!user.getId().equals(userId)) {
 			throw new UserConflictException("Something went wrong!");
 		}
 
@@ -104,7 +104,7 @@ public class BetService {
 		List<BetModel> betExists = betRepository.findAllByUserId(dto.getUserId());
 
 		for (BetModel bet : betExists) {
-			if (bet.getGame().getId() == dto.getGameId()) {
+			if (bet.getGame().getId().equals(dto.getGameId())) {
 				throw new BetConflictException("Bet already exists!");
 			}
 		}

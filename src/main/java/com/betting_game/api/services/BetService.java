@@ -13,6 +13,7 @@ import com.betting_game.api.dtos.BetsByUserTransformedResponseDTO;
 import com.betting_game.api.dtos.UserDTO;
 import com.betting_game.api.exceptions.BetConflictException;
 import com.betting_game.api.exceptions.GameNotFoundException;
+import com.betting_game.api.exceptions.UserConflictException;
 import com.betting_game.api.exceptions.BetBadRequestException;
 import com.betting_game.api.exceptions.UserNotFoundException;
 import com.betting_game.api.exceptions.UserUnauthorizedException;
@@ -79,6 +80,10 @@ public class BetService {
 
 	public BetsByUserTransformedResponseDTO findAllByUser(Long userId, UserDTO dto) {
 		UserModel user = this.verifyLogin(dto.getUsername(), dto.getPassword());
+
+		if(user.getId() != userId){
+			throw new UserConflictException("Something went wrong!");
+		}
 
 		List<BetModel> bets = betRepository.findAllByUserId(userId);
 		BetsByUserTransformedResponseDTO response = this.transform(bets, user);

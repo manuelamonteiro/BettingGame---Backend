@@ -55,12 +55,16 @@ public class BetService {
 		return userByUsername;
 	}
 
-	public BetsByUserTransformedResponseDTO findAllByUser(Long userId, UserDTO dto) {
-		UserModel user = this.verifyLogin(dto.getUsername(), dto.getPassword());
-
+	public void verifyUser(UserModel user, Long userId) {
 		if (!user.getId().equals(userId)) {
 			throw new UserConflictException("Something went wrong!");
 		}
+	}
+
+	public BetsByUserTransformedResponseDTO findAllByUser(Long userId, UserDTO dto) {
+		UserModel user = this.verifyLogin(dto.getUsername(), dto.getPassword());
+
+		this.verifyUser(user, userId);
 
 		List<BetModel> bets = betRepository.findAllByUserId(userId);
 		BetsByUserTransformedResponseDTO response = $transformResponses.transform(bets, user);
@@ -70,10 +74,12 @@ public class BetService {
 
 	public BetModel save(BetDTO dto) {
 
-		this.verifyLogin(dto.getUsername(), dto.getPassword());
+		UserModel userByUsername = this.verifyLogin(dto.getUsername(), dto.getPassword());
 
 		UserModel user = userRepository.findById(dto.getUserId()).orElseThrow(
 				() -> new UserNotFoundException("User not found!"));
+
+		this.verifyUser(userByUsername, dto.getUserId());
 
 		GameModel game = gameRepository.findById(Objects.requireNonNull(dto.getGameId())).orElseThrow(
 				() -> new GameNotFoundException("Game not found!"));

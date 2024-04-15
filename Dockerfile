@@ -2,7 +2,7 @@
 FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 COPY . .
-RUN ./mvnw clean install -DskipTests
+RUN chmod +x mvnw && ./mvnw clean install -DskipTests
 
 # Estágio de execução
 FROM eclipse-temurin:17-jdk-alpine

@@ -87,6 +87,7 @@ public class GameService {
 							user.setCoins(user.getCoins()
 									+ (betByUserTransformed.getBetAmount() * 2));
 							userRepository.save(user);
+							break;
 						}
 					}
 				}
